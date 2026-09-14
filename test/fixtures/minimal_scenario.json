@@ -1,0 +1,65 @@
+{
+  "meta": { "icon": "builtin:fedora", "color": "#1B2A4A", "language": "fa",
+            "defaultTimers": { "night": 45, "dawn": 15, "discussion": 120, "vote": 30 } },
+  "teams": [
+    { "id": "city",  "name": "شهر",   "color": "#2E7D32", "icon": "builtin:dove"   },
+    { "id": "mafia", "name": "مافیا", "color": "#B71C1C", "icon": "builtin:fedora" }
+  ],
+  "roles": [
+    { "id": "mafia", "name": "مافیا", "team": "mafia", "count": 2, "icon": "builtin:fedora",
+      "cardColor": "#B71C1C", "cardFrame": "builtin:classic", "priority": 10,
+      "knownTo": ["mafia"], "deathReveal": "role",
+      "description": "هر شب با هم‌تیمی‌ات یکی را بکش.",
+      "abilities": [ { "id": "k1", "type": "attack", "name": "کشتن", "enabled": true,
+        "targeting": { "count": 1, "scope": "alive", "selfAllowed": false,
+                       "sameTeamAllowed": false, "repeatTarget": true, "mustNotBe": [] },
+        "timing": { "when": "night", "everyNights": 1, "cooldown": 0, "usesTotal": -1,
+                     "onlyNightNumbers": [], "notNightNumbers": [0] },
+        "effect": { "resultMode": "team", "customResultText": "",
+                     "bypassProtection": false, "bypassImmunity": false, "onBlockedResult": "blocked" },
+        "messages": { "success": "", "blocked": "" }, "wakeGroup": 1 } ] },
+    { "id": "doctor", "name": "دکتر", "team": "city", "count": 1, "icon": "builtin:cross",
+      "cardColor": "#2E7D32", "cardFrame": "builtin:classic", "priority": 20,
+      "knownTo": [], "deathReveal": "role",
+      "description": "هر شب یک نفر را نجات بده.",
+      "abilities": [ { "id": "s1", "type": "save", "name": "نجات", "enabled": true,
+        "targeting": { "count": 1, "scope": "alive", "selfAllowed": true,
+                       "sameTeamAllowed": true, "repeatTarget": true, "mustNotBe": [] },
+        "timing": { "when": "night", "everyNights": 1, "cooldown": 0, "usesTotal": -1,
+                     "onlyNightNumbers": [], "notNightNumbers": [0] },
+        "effect": { "resultMode": "team", "customResultText": "",
+                     "bypassProtection": false, "bypassImmunity": false, "onBlockedResult": "blocked" },
+        "messages": { "success": "", "blocked": "" }, "wakeGroup": 2 } ] },
+    { "id": "citizen", "name": "شهروند", "team": "city", "count": 3, "icon": "builtin:person",
+      "cardColor": "#37474F", "cardFrame": "builtin:classic", "priority": 900,
+      "knownTo": [], "deathReveal": "nothing",
+      "description": "با استدلال مافیاها را پیدا کن.",
+      "abilities": [] }
+  ],
+  "flow": { "cycle": ["night", "dawn", "day", "vote"], "zeroNight": true, "repeatFrom": "night" },
+  "phases": [
+    { "id": "night", "name": "شب", "kind": "night", "sound": "builtin:wolves",
+      "autoWakeByPriority": true, "wakeList": ["mafia*", "doctor", "citizen"], "timer": 45 },
+    { "id": "dawn",  "name": "سپیده‌دم", "kind": "dawn", "sound": "builtin:rooster",
+      "autoWakeByPriority": false, "wakeList": [], "timer": 15 },
+    { "id": "day",   "name": "روز", "kind": "day", "sound": "builtin:bell",
+      "autoWakeByPriority": false, "wakeList": [], "timer": 120 },
+    { "id": "vote",  "name": "رأی‌گیری", "kind": "vote", "sound": "builtin:drum",
+      "autoWakeByPriority": false, "wakeList": [], "timer": 30 }
+  ],
+  "rules": {
+    "firstNightKill": false, "showTeamAtStart": true, "deadCanSpeak": false,
+    "lastWords": { "enabled": true, "seconds": 30 },
+    "vote": { "mode": "majority", "tieBreak": "revote", "abstain": true,
+               "showCounts": true, "eliminatedReveal": "role" },
+    "doctor": { "selfSave": true, "sameTargetTwice": true },
+    "audio": { "phaseChange": true, "death": "builtin:gunshot" }
+  },
+  "winConditions": [
+    { "team": "city",  "join": "AND",
+      "terms": [ { "left": "aliveCount:mafia", "op": "==", "right": "0" } ] },
+    { "team": "mafia", "join": "AND",
+      "terms": [ { "left": "aliveCount:mafia", "op": ">=", "right": "aliveCount:city" } ] }
+  ],
+  "events": []
+}
