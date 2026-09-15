@@ -89,12 +89,12 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen>
   void _play(LibraryEntry e) {
     // فقط انتخاب سناریو — بازیکن‌ها در صفحه راه‌اندازی وارد می‌شوند
     ref.read(selectedScenarioProvider.notifier).state = e.scenarioId;
-    context.go('/table/setup');
+    context.push('/table/setup');
   }
 
   void _playSpecial(LibraryEntry e) {
     if (!PremiumGate.canUse(PremiumFeature.premiumScenarios)) {
-      context.go('/premium');
+      context.push('/premium');
       return;
     }
     _play(e);

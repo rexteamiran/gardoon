@@ -134,7 +134,7 @@ class _TableSetupScreenState extends ConsumerState<TableSetupScreen> {
                     ref
                         .read(tableProvider.notifier)
                         .startGame(_selected!, _names);
-                    context.go('/table/deal');
+                    context.push('/table/deal');
                   }
                 : null,
           ),

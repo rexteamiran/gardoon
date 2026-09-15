@@ -70,7 +70,7 @@ class SettingsScreen extends ConsumerWidget {
             title: Text('گردون طلایی',
                 style: TextStyle(color: colors.text)),
             trailing: const Icon(Icons.chevron_left),
-            onTap: () => context.go('/premium'),
+            onTap: () => context.push('/premium'),
           ),
           const Divider(height: 32),
           Padding(

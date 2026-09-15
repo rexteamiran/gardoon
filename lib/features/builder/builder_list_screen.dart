@@ -34,7 +34,7 @@ class BuilderListScreen extends ConsumerWidget {
               height: 64,
               onPressed: () {
                 ref.read(editTargetProvider.notifier).state = null;
-                context.go('/builder/edit');
+                context.push('/builder/edit');
               },
             ),
             const SizedBox(height: 16),
@@ -45,7 +45,7 @@ class BuilderListScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: GooeyCard(
-                  onTap: () => context.go('/builder/edit/copy/${e.scenarioId}'),
+                  onTap: () => context.push('/builder/edit/copy/${e.scenarioId}'),
                   child: Row(
                     children: [
                       Text(iconGlyph(e.scenario.meta.icon),
@@ -76,7 +76,7 @@ class BuilderListScreen extends ConsumerWidget {
                   onTap: () {
                     ref.read(editTargetProvider.notifier).state =
                         e.scenarioId;
-                    context.go('/builder/edit');
+                    context.push('/builder/edit');
                   },
                   child: Row(
                     children: [

@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,7 +19,15 @@ class HomeScreen extends ConsumerWidget {
     final colors = AppColors.of(context);
     final golden = PremiumGate.isGolden;
 
-    return Scaffold(
+    // دکمه بازگشت اندروید در خانه = تأیید خروج، نه خروج ناگهانی
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final leave = await _confirmExit(context);
+        if (leave && context.mounted) SystemNavigator.pop();
+      },
+      child: Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -39,7 +48,7 @@ class HomeScreen extends ConsumerWidget {
                   const Spacer(),
                   IconButton(
                     tooltip: 'گردون طلایی',
-                    onPressed: () => context.go('/premium'),
+                    onPressed: () => context.push('/premium'),
                     icon: Icon(
                       Icons.workspace_premium,
                       color: golden ? BrandColors.gold : colors.subtext,
@@ -48,7 +57,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   IconButton(
                     tooltip: 'تنظیمات',
-                    onPressed: () => context.go('/settings'),
+                    onPressed: () => context.push('/settings'),
                     icon: Icon(Icons.tune, color: colors.text, size: 26),
                   ),
                 ],
@@ -59,7 +68,7 @@ class HomeScreen extends ConsumerWidget {
                 label: 'میزگرد جدید',
                 icon: Icons.casino_outlined,
                 height: 92,
-                onPressed: () => context.go('/table/setup'),
+                onPressed: () => context.push('/table/setup'),
               ),
               const SizedBox(height: 20),
               // دو دکمه فرعی
@@ -70,7 +79,7 @@ class HomeScreen extends ConsumerWidget {
                       icon: '🛠️',
                       title: 'سناریوساز',
                       subtitle: 'قانون خودت را بساز',
-                      onTap: () => context.go('/builder'),
+                      onTap: () => context.push('/builder'),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -79,7 +88,7 @@ class HomeScreen extends ConsumerWidget {
                       icon: '🏛️',
                       title: 'کتابخانه',
                       subtitle: 'سناریوهای آماده',
-                      onTap: () => context.go('/library'),
+                      onTap: () => context.push('/library'),
                     ),
                   ),
                 ],
@@ -98,7 +107,29 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
       ),
+      ),
     );
+  }
+
+  Future<bool> _confirmExit(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('خروج از گردون؟'),
+        content: const Text('می‌خواهید اپ را ببندید؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('نه، می‌مانم'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('خروج'),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 }
 

@@ -2,7 +2,7 @@ name: gardoon
 description: "گردون — اپ مدیریت بازی مافیا برای گرداننده؛ کاملاً فارسی و کاملاً آفلاین."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: ^3.13.3

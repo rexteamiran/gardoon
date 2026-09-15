@@ -729,7 +729,7 @@ class _WinTab extends ConsumerWidget {
               TextButton(
                 onPressed: PremiumGate.isGolden
                     ? null
-                    : () => context.go('/premium'),
+                    : () => context.push('/premium'),
                 child: Text(PremiumGate.isGolden
                     ? 'طلایی فعالی — به‌زودی ✓'
                     : 'دیدن گردون طلایی'),

@@ -232,7 +232,14 @@ class PhaseHeader extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       decoration: BoxDecoration(
-        color: colors.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            c.withValues(alpha: 0.14),
+            colors.surface,
+          ],
+        ),
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
@@ -240,8 +247,15 @@ class PhaseHeader extends StatelessWidget {
           topLeft: Radius.circular(24),
         ),
         border: Border(
-          bottom: BorderSide(color: c.withValues(alpha: 0.6), width: 2),
+          bottom: BorderSide(color: c.withValues(alpha: 0.7), width: 2),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: c.withValues(alpha: 0.18),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -269,7 +283,7 @@ class PhaseHeader extends StatelessWidget {
   }
 }
 
-/// شمارنده ثانیه شمار بزرگ
+/// شمارنده ثانیه شمار بزرگ — حلقه‌ای با پیشرفت رنگی
 class BigTimer extends StatelessWidget {
   const BigTimer({super.key, required this.remaining, required this.total});
 
@@ -280,25 +294,53 @@ class BigTimer extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     final progress = total > 0 ? remaining / total : 0.0;
+    // رنگ از سبز به طلایی به قرمز با نزدیک شدن به صفر
+    final Color ringColor;
+    if (progress > 0.5) {
+      ringColor = BrandColors.city;
+    } else if (progress > 0.2) {
+      ringColor = colors.primary;
+    } else {
+      ringColor = BrandColors.mafia;
+    }
     return Column(
       children: [
-        Text(
-          remaining.fa,
-          style: TextStyle(
-            fontSize: 56,
-            fontWeight: FontWeight.w700,
-            color: colors.text,
-            fontFeatures: const [],
-          ),
-        ),
-        const SizedBox(height: 12),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: LinearProgressIndicator(
-            value: progress,
-            minHeight: 10,
-            backgroundColor: colors.surface3,
-            valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+        SizedBox(
+          width: 170,
+          height: 170,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                width: 170,
+                height: 170,
+                child: CircularProgressIndicator(
+                  value: progress,
+                  strokeWidth: 12,
+                  strokeCap: StrokeCap.round,
+                  backgroundColor: colors.surface3,
+                  valueColor: AlwaysStoppedAnimation<Color>(ringColor),
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    remaining.fa,
+                    style: TextStyle(
+                      fontSize: 52,
+                      fontWeight: FontWeight.w700,
+                      color: ringColor,
+                      fontFeatures: const [],
+                    ),
+                  ),
+                  Text(
+                    'ثانیه',
+                    style: TextStyle(color: colors.subtext, fontSize: 12),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ],

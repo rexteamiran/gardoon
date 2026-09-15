@@ -25,6 +25,7 @@ class TableState {
     this.dealIndex = 0,
     this.cardFlipped = false,
     this.stats = const {},
+    this.voteFinalized = false,
   });
 
   final TableStage stage;
@@ -34,6 +35,7 @@ class TableState {
   final int dealIndex; // نقش‌کشه — نوبت کدام بازیکن
   final bool cardFlipped; // کارت باز شده؟
   final Map<String, int> stats; // آمار پایانی
+  final bool voteFinalized; // نتیجهٔ رأی‌گیری اعلام شد؟ (نمایش دکمهٔ رفتن به شب)
 
   TableState copyWith({
     TableStage? stage,
@@ -43,6 +45,7 @@ class TableState {
     int? dealIndex,
     bool? cardFlipped,
     Map<String, int>? stats,
+    bool? voteFinalized,
   }) =>
       TableState(
         stage: stage ?? this.stage,
@@ -52,6 +55,7 @@ class TableState {
         dealIndex: dealIndex ?? this.dealIndex,
         cardFlipped: cardFlipped ?? this.cardFlipped,
         stats: stats ?? this.stats,
+        voteFinalized: voteFinalized ?? this.voteFinalized,
       );
 }
 
@@ -143,7 +147,11 @@ class TableController extends StateNotifier<TableState> {
     final before = s.phaseKind;
     final after = engine.nextPhase(s, random: _rnd);
     _onPhaseSound(before, after);
-    state = state.copyWith(session: after);
+    state = state.copyWith(
+      session: after,
+      // ترک فاز رأی‌گیری — پرچم اعلام نتیجه پاک شود
+      voteFinalized: before == 'vote' ? false : state.voteFinalized,
+    );
   }
 
   void _onPhaseSound(String before, GameSessionState after) {
@@ -183,19 +191,20 @@ class TableController extends StateNotifier<TableState> {
 
   void castVote(String targetId) {
     final s = state.session;
-    if (s == null) return;
+    if (s == null || state.voteFinalized) return;
+    _sound.play(GardoonSound.tap);
     state = state.copyWith(session: engine.castVote(s, targetId));
   }
 
   void removeVote(String targetId) {
     final s = state.session;
-    if (s == null) return;
+    if (s == null || state.voteFinalized) return;
     state = state.copyWith(session: engine.removeVote(s, targetId));
   }
 
   void clearVotes() {
     final s = state.session;
-    if (s == null) return;
+    if (s == null || state.voteFinalized) return;
     state = state.copyWith(session: engine.clearVotes(s));
   }
 
@@ -205,10 +214,16 @@ class TableController extends StateNotifier<TableState> {
     final after = engine.finalizeVote(s, random: _rnd);
     if (after.finished) {
       _sound.play(GardoonSound.win);
+    } else if (after.isRevote) {
+      // رأی‌گیری مجدد — همان فاز ادامه دارد
+      _sound.play(GardoonSound.vote);
+      state = state.copyWith(session: after, voteFinalized: false);
+      return;
     } else {
       _sound.play(GardoonSound.vote);
     }
-    state = state.copyWith(session: after);
+    // نتیجه اعلام شد — UI دکمهٔ «رفتن به شب» را نشان می‌دهد
+    state = state.copyWith(session: after, voteFinalized: true);
   }
 
   // ------------------------------------------------ پایان / خروج
